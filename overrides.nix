@@ -26,5 +26,8 @@ in (self: super: let
     asteroids-front = prodOverride super.asteroids-front;
     bytes = dontCheck super.bytes;
     linear = dontCheck super.linear;
+    base-compat-batteries = dontCheck super.base-compat-batteries;
+    Glob = dontCheck super.Glob;
+    apecs = dontCheck super.apecs;
   }
 )

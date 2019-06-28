@@ -13,9 +13,18 @@ library
   hs-source-dirs:      src
   exposed-modules:
     Asteroids.Util
+    Asteroids.Game
+    Asteroids.Game.Asteroid
+    Asteroids.Game.Rigid
+    Asteroids.Game.World
   build-depends:
       base
+    , apecs             >= 0.7          && < 0.8
+    , linear            >= 1.20         && < 1.21
+    , safe              >= 0.3          && < 0.4
+    , splaton           >= 0.1          && < 0.2
     , text              >= 1.2          && < 1.3
+    , vector            >= 0.12         && < 0.13
   default-language:    Haskell2010
   default-extensions:
     BangPatterns
