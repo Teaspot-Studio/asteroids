@@ -22,6 +22,7 @@ module Data.Splaton.Polygon(
   , distanceVecToPoly
   , distanceToPolygon
   , polygonDistanceBetween
+  , polygonArea
   ) where
 
 import Control.Applicative
@@ -295,3 +296,9 @@ polygonDistanceBetween p1 p2 = distance v1 v2
     dv = ray c1 c2
     v1 = fromMaybe c1 . fmap snd $ polygonIntersectRay p1 dv
     v2 = fromMaybe c2 . fmap snd $ polygonIntersectRay p2 dv
+
+-- | Calculate polygon area
+polygonArea :: (Fractional a, Unbox a) => Polygon a -> a
+polygonArea p
+  | V.null (polygonPoints p) = 0
+  | otherwise = (0.5 *) . sum . fmap (\(V2 x1 y1, V2 x2 y2) -> x1*y2 - x2*y1) . polygonSegments $ p

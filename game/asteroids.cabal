@@ -15,12 +15,16 @@ library
     Asteroids.Util
     Asteroids.Game
     Asteroids.Game.Asteroid
+    Asteroids.Game.Material
+    Asteroids.Game.Random
     Asteroids.Game.Rigid
+    Asteroids.Game.Shape
     Asteroids.Game.World
   build-depends:
       base
     , apecs             >= 0.7          && < 0.8
     , linear            >= 1.20         && < 1.21
+    , random            >= 1.1          && < 1.2
     , safe              >= 0.3          && < 0.4
     , splaton           >= 0.1          && < 0.2
     , text              >= 1.2          && < 1.3
