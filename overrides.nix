@@ -2,10 +2,12 @@
 { reflex-platform ? (import ./reflex-platform.nix {}), minimize ? false, ... }:
 let
   pkgs = reflex-platform.nixpkgs;
-  overrideCabal = pkgs.haskell.lib.overrideCabal;
+  lib = pkgs.haskell.lib;
+  overrideCabal = lib.overrideCabal;
+  dontCheck = lib.dontCheck;
   optimizeGhcjs = drv: overrideCabal drv (drv: { buildFlags = (drv.buildFlags or []) ++ ["--ghcjs-option=-O2 " "--ghcjs-option=-dedupe"]; });
   statics = ./front/statics;
-  runClosureCompiler = drv: pkgs.haskell.lib.overrideCabal drv (drv: {
+  runClosureCompiler = drv: lib.overrideCabal drv (drv: {
     postFixup = ''
       cd $out/bin/asteroids-front.jsexe
       ${pkgs.closurecompiler}/bin/closure-compiler all.js --compilation_level=ADVANCED_OPTIMIZATIONS \
@@ -22,5 +24,7 @@ in (self: super: let
   prodOverride = drv: if minimize then runClosureCompiler (optimizeGhcjs drv) else drv;
   in {
     asteroids-front = prodOverride super.asteroids-front;
+    bytes = dontCheck super.bytes;
+    linear = dontCheck super.linear;
   }
 )
