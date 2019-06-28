@@ -7,10 +7,11 @@ in reflex-platform.project ({ pkgs, ... }: {
     asteroids = ./game;
     asteroids-back = ./back;
     asteroids-front = ./front;
+    pixi = ./pixi;
   };
   shells = {
-    ghcjs = ["asteroids" "asteroids-front"];
-    ghc = ["asteroids" "asteroids-front" "asteroids-back"]; # We can build front by GHC to enable use of IDE tools for it
+    ghcjs = ["asteroids" "asteroids-front" "pixi"];
+    ghc = ["asteroids" "asteroids-front" "asteroids-back" "pixi"]; # We can build front by GHC to enable use of IDE tools for it
   };
   overrides = import ./overrides.nix { inherit reflex-platform minimize; };
 })
