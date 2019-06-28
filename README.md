@@ -14,5 +14,5 @@ To start hacking:
 
 There is also several `ghcid` scripts for interactive development (notice that they are called outside of any dev shell):
 1. `cd back && ./ghcid.sh` for backend.
-2. `cd front && ./ghcid.sh` for frontend .
-3. `cd gane && ./ghcid.sh` for gameplay part. 
+2. `cd front && ./ghcid.sh` for frontend.
+3. `cd game && ./ghcid.sh` for gameplay part.

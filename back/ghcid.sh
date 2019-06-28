@@ -1,1 +1,1 @@
-ghcid -c "cabal new-repl asteroids-back"
+nix-shell -A shells.ghc ../default.nix --command "ghcid -c 'cabal new-repl asteroids-back'"
