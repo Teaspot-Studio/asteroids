@@ -98,8 +98,9 @@ pixiAddTicker (PixiApp a) f = liftIO $ do
 pixiNewApp :: MonadIO m
   => Int -- ^ Width
   -> Int -- ^ Height
+  -> Color -- ^ Background color
   -> m PixiApp
-pixiNewApp w h = error "pixiNewApp: unimplemented"
+pixiNewApp _ _ _ = error "pixiNewApp: unimplemented"
 
 -- | Attach PIXI element to the given dom element
 pixiAppendTo :: MonadIO m
