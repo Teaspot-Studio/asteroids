@@ -12,4 +12,5 @@ import Asteroids.Game.Material
 import Asteroids.Game.Random
 import Asteroids.Game.Rigid
 import Asteroids.Game.Shape
+import Asteroids.Game.Transform
 import Asteroids.Game.World

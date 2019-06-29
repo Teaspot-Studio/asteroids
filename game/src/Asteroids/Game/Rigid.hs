@@ -1,14 +1,15 @@
 module Asteroids.Game.Rigid(
     Rigid(..)
+  , HasRigid
   ) where
 
 import Apecs
-import Linear
+import Asteroids.Game.Store.Cache
 import Data.Splaton
+import Linear
 
 data Rigid = Rigid {
   rigidMass      :: !Double
-, rigidTransform :: !(T2 Double)
 , rigidVelocity  :: !(V2 Double)
 }
 
@@ -21,4 +22,4 @@ type HasRigid w m = (
   )
 
 instance Component Rigid where
-  type Storage Rigid = Cache 100 (Map Rigid)
+  type Storage Rigid = PCache 100 (Map Rigid)

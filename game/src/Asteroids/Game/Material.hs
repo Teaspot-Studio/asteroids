@@ -4,6 +4,7 @@ module Asteroids.Game.Material(
   ) where
 
 import Apecs
+import Asteroids.Game.Store.Cache
 
 type Color = Int
 
@@ -25,4 +26,4 @@ type HasMaterial w m = (
   )
 
 instance Component Material where
-  type Storage Material = Cache 100 (Map Material)
+  type Storage Material = PCache 100 (Map Material)

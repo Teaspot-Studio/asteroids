@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedLists #-}
 module Data.Splaton.Polygon(
     Polygon(..)
+  , mapPolygon
   , polygonPoints
   , quad
   , rect
@@ -53,6 +54,10 @@ newtype Polygon a = Polygon { unPolygon :: Vector (V2 a)}
 instance (Unbox a, Transform t, ApplyTransform t (V2 a)) => ApplyTransform t (Polygon a) where
   applyTransform t (Polygon vs) = Polygon $ V.map (applyTransform t) vs
   {-# INLINE applyTransform #-}
+
+-- | Explicit mapping function as contents is unboxed
+mapPolygon :: (Unbox a, Unbox b) => (a -> b) -> Polygon a -> Polygon b
+mapPolygon f (Polygon va) = Polygon $ V.map (fmap f) va
 
 -- | Get polygon internal points in CCW order
 polygonPoints :: Polygon a -> Vector (V2 a)

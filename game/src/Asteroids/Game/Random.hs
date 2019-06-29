@@ -1,6 +1,7 @@
 module Asteroids.Game.Random(
     Gen(..)
   , HasGen
+  , initRandom
   , genRandom
   ) where
 

@@ -2,20 +2,21 @@ module Asteroids.Frontend(
     frontend
   ) where
 
+import Apecs
 import Asteroids.Frontend.Monad
 import Asteroids.Frontend.Render
+import Asteroids.Frontend.World
 import Asteroids.Util
-import Control.Monad.Fix
-import Reflex.Dom
-
 import Control.Monad
 import Control.Monad.IO.Class
 import Data.Graphics.Pixi
 import Data.IORef
 import Data.Splaton
+import Data.Time
 import GHCJS.DOM.Types (unElement)
 import Language.Javascript.JSaddle
 import Linear
+import Reflex.Dom
 
 frontend :: MonadFront t m => m ()
 frontend = do
@@ -28,12 +29,15 @@ drawGame e = do
   pixiAppendTo app e
   pixiStageInteractive app True
 
-  g <- newGraphics
-  beginFill g 0xc4c4c4 1.0
-  lineStyle g 10 0x7a7777 0.5
-  drawPolygon g $ quad (V2 100 100) (V2 50 150) (V2 60 200) (V2 120 125)
-  endFill g
-  pixiAddChild app g
+  w <- initRenderWorld
+  runWith w $ fillRenderWorld app
+
+  t0 <- getCurrentTime
+  tickRef <- newIORef t0
+  pixiAddTicker app $ do
+    t2 <- getCurrentTime
+    dt <- atomicModifyIORef' tickRef $ \t1 -> (t2, realToFrac $ t2 `diffUTCTime` t1)
+    runWith w $ stepRenderWorld dt
 
 -- example :: JSVal -> IO ()
 -- example e = do

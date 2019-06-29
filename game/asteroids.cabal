@@ -19,11 +19,15 @@ library
     Asteroids.Game.Random
     Asteroids.Game.Rigid
     Asteroids.Game.Shape
+    Asteroids.Game.Store.Cache
+    Asteroids.Game.Transform
     Asteroids.Game.World
   build-depends:
       base
     , apecs             >= 0.7          && < 0.8
+    , containers        >= 0.4          && < 0.7
     , linear            >= 1.20         && < 1.21
+    , mtl               >= 2.0          && < 2.3
     , random            >= 1.1          && < 1.2
     , safe              >= 0.3          && < 0.4
     , splaton           >= 0.1          && < 0.2

@@ -1,8 +1,10 @@
 module Asteroids.Game.Shape(
     Shape(..)
+  , HasShape
   ) where
 
-import Apecs 
+import Apecs
+import Asteroids.Game.Store.Cache
 import Data.Splaton
 
 newtype Shape = Shape {
@@ -17,4 +19,4 @@ type HasShape w m = (
   )
 
 instance Component Shape where
-  type Storage Shape = Cache 100 (Map Shape)
+  type Storage Shape = PCache 100 (Map Shape)
