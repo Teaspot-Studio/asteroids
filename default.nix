@@ -9,10 +9,14 @@ in reflex-platform.project ({ pkgs, ... }: {
     asteroids-front = ./front;
     pixi = ./pixi;
     splaton = ./splaton;
+    matter = ./matter;
   };
   shells = {
-    ghcjs = ["asteroids" "asteroids-front" "pixi" "splaton"];
-    ghc = ["asteroids" "asteroids-front" "asteroids-back" "pixi" "splaton"]; # We can build front by GHC to enable use of IDE tools for it
+    ghcjs = ["asteroids" "asteroids-front" "pixi" "splaton" "matter"];
+    ghc = ["asteroids" "asteroids-front" "asteroids-back" "pixi" "splaton" "matter"]; # We can build front by GHC to enable use of IDE tools for it
   };
   overrides = import ./overrides.nix { inherit reflex-platform minimize; };
+  shellToolOverrides = ghc: super: {
+    inherit (pkgs) closurecompiler;
+  };
 })

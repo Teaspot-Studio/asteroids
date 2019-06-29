@@ -12,7 +12,8 @@ let
       cd $out/bin/asteroids-front.jsexe
       ${pkgs.closurecompiler}/bin/closure-compiler all.js --compilation_level=ADVANCED_OPTIMIZATIONS \
         --externs=all.js.externs \
-        --externs=${statics}/js/runmain.js \
+        --externs=${statics}/js/pixi.min.js \
+        --externs=${statics}/js/matter.min.js \
         --jscomp_off=duplicate \
         --jscomp_off=undefinedVars \
         --jscomp_off=externsValidation \
