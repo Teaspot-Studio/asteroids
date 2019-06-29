@@ -19,6 +19,10 @@ library
   hs-source-dirs:      src
   exposed-modules:
     Data.Physics.Matter
+    Data.Physics.Matter.Bodies
+    Data.Physics.Matter.Body
+    Data.Physics.Matter.Engine
+    Data.Physics.Matter.World
   build-depends:
       base
     , jsaddle           >= 0.9          && < 0.10

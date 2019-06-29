@@ -4,3 +4,4 @@ packages:
   ../game
   ../pixi
   ../splaton
+  ../matter
