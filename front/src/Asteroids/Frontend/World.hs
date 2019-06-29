@@ -16,8 +16,6 @@ import Control.Monad.IO.Class
 import Data.Graphics.Pixi
 import System.Random
 
-import Debug.Trace
-
 data RWorld = RWorld {
   rworldDrawable :: !(Storage Drawable)
 , rworldApp      :: !(Storage App)
@@ -42,7 +40,6 @@ fillRenderWorld :: PixiApp -> SystemT RenderWorld IO ()
 fillRenderWorld app = do
   initPixiApp app
   seed <- liftIO randomIO
-  traceShowM seed
   initRandom seed
   fillWorld
   spawnDrawables

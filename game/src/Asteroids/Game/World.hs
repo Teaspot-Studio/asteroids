@@ -70,4 +70,5 @@ fillWorld = do
 
 -- | Calculate one simulation step
 stepWorld :: Double -> SystemT (World r) IO ()
-stepWorld dt = pure ()
+stepWorld dt = do
+  stepRigids dt 
