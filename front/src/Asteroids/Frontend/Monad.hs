@@ -4,6 +4,7 @@ module Asteroids.Frontend.Monad(
 
 import Control.Monad.Fix
 import Control.Monad.IO.Class
+import Language.Javascript.JSaddle
 import Reflex.Dom
 
 type MonadFront t m = (
@@ -12,5 +13,6 @@ type MonadFront t m = (
   , DomBuilder t m
   , MonadFix m
   , MonadIO m
+  , MonadJSM m
   , DomBuilderSpace m ~ GhcjsDomSpace
   )

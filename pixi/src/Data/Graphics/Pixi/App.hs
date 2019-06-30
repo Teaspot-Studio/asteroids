@@ -72,7 +72,7 @@ foreign import javascript safe "$1.stage.on('pointertap', $2);"
 -- | Call function on mouse click
 pixiSetOnClick :: MonadIO m
   => PixiApp
-  -> IO ()
+  -> JSM ()
   -> m ()
 pixiSetOnClick (PixiApp a) f = liftIO $ do
   cb <- asyncCallback f
@@ -85,7 +85,7 @@ foreign import javascript safe "$1.ticker.add($2);"
 -- | Call function on each draw tick
 pixiAddTicker :: MonadIO m
   => PixiApp
-  -> IO ()
+  -> JSM ()
   -> m ()
 pixiAddTicker (PixiApp a) f = liftIO $ do
   cb <- asyncCallback f
@@ -126,14 +126,14 @@ pixiAddChild = error "pixiAddChild: unimplemented"
 -- | Call function on mouse click
 pixiSetOnClick :: MonadIO m
   => PixiApp
-  -> IO ()
+  -> JSM ()
   -> m ()
 pixiSetOnClick = error "pixiSetOnClick: unimplemented"
 
 -- | Call function on each draw tick
 pixiAddTicker :: MonadIO m
   => PixiApp
-  -> IO ()
+  -> JSM ()
   -> m ()
 pixiAddTicker = error "pixiAddTicker: unimplemented"
 

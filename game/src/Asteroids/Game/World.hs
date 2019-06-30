@@ -8,12 +8,14 @@ module Asteroids.Game.World(
 import Apecs
 import Asteroids.Game.Asteroid
 import Asteroids.Game.Material
+import Asteroids.Game.Physics
 import Asteroids.Game.Random
 import Asteroids.Game.Rigid
 import Asteroids.Game.Shape
 import Asteroids.Game.Transform
 import Control.Monad
 import Control.Monad.IO.Class
+import Language.Javascript.JSaddle (JSM)
 
  -- | Global storage for all components. With 'r' type variable we pass extra
  -- storages for renderer extension, where frontend will store its own state.
@@ -24,6 +26,7 @@ data World r = World {
 , worldMaterial      :: !(Storage Material)
 , worldGen           :: !(Storage Gen)
 , worldTrans         :: !(Storage Trans)
+, worldPhysicsEngine :: !(Storage PhysicsEngine)
 , worldExtra         :: !r
 }
 
@@ -31,6 +34,7 @@ data World r = World {
 initWorld :: MonadIO m => r -> m (World r)
 initWorld r = World
   <$> explInit
+  <*> explInit
   <*> explInit
   <*> explInit
   <*> explInit
@@ -62,13 +66,18 @@ instance Monad m => Has (World r) m Trans where
   getStore = asks worldTrans
   {-# INLINE getStore #-}
 
+instance Monad m => Has (World r) m PhysicsEngine where
+  getStore = asks worldPhysicsEngine
+  {-# INLINE getStore #-}
+
 -- | Generate initial objects in world
-fillWorld :: SystemT (World r) IO ()
+fillWorld :: SystemT (World r) JSM ()
 fillWorld = do
+  initPhysicsEngine
   _ <- replicateM 10 spawnAsteroid
   pure ()
 
 -- | Calculate one simulation step
-stepWorld :: Double -> SystemT (World r) IO ()
+stepWorld :: Double -> SystemT (World r) JSM ()
 stepWorld dt = do
-  stepRigids dt 
+  stepRigids dt

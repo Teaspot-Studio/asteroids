@@ -8,7 +8,9 @@ module Data.Physics.Matter.Bodies(
 
 import Control.Monad.IO.Class
 import Data.Physics.Matter.Body
+import Data.Physics.Matter.Vector
 import Language.Javascript.JSaddle
+import Linear
 
 -- | Creates a new rigid body model with a circle hull.
 bodiesCircle :: MonadJSM m
@@ -22,7 +24,7 @@ bodiesCircle :: MonadJSM m
 bodiesFromVertecies :: MonadJSM m
   => Double -- ^ X
   -> Double -- ^ Y
-  -> [(Double, Double)] -- ^ Verts
+  -> [V2 Double] -- ^ Verts
   -> m Body
 {-# INLINE bodiesFromVertecies #-}
 
@@ -72,7 +74,9 @@ foreign import javascript safe "Matter.Bodies.trapezoid($1, $2, $3, $4, $5)"
   jsBodiesTrapezoid :: Double -> Double -> Double -> Double -> Double -> IO Body
 
 bodiesCircle x y r = liftIO $ jsBodiesCircle x y r
-bodiesFromVertecies x y vs = liftIO $ jsBoidiesFromVertecies x y =<< toJSVal vs
+bodiesFromVertecies x y vs = liftIO $ do
+  vs' <- traverse (fmap unVec . toVec) vs
+  jsBoidiesFromVertecies x y =<< toJSVal vs'
 bodiesPolygon x y i r = liftIO $ jsBodiesPolygon x y i r
 bodiesRectangle x y w h = liftIO $ jsBodiesRectangle x y w h
 bodiesTrapezoid x y w h s = liftIO $ jsBodiesTrapezoid x y w h s

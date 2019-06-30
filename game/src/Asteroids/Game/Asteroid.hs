@@ -5,12 +5,14 @@ module Asteroids.Game.Asteroid(
 
 import Apecs
 import Asteroids.Game.Material
+import Asteroids.Game.Physics
 import Asteroids.Game.Random
 import Asteroids.Game.Rigid
 import Asteroids.Game.Shape
 import Asteroids.Game.Transform
 import Control.Monad.IO.Class
 import Data.Splaton
+import Language.Javascript.JSaddle (MonadJSM)
 import Linear
 
 import qualified Data.Vector.Unboxed as V
@@ -19,15 +21,14 @@ type HasAsteroid w m = (
     Has w m Shape
   , Has w m Rigid
   , Has w m Material
-  , Has w m Trans
+  , HasPhysicsEngine w m
   )
 
-spawnAsteroid :: (HasGen w m, HasAsteroid w m, Has w m EntityCounter, MonadIO m) => SystemT w m Entity
+spawnAsteroid :: (HasGen w m, HasAsteroid w m, Has w m EntityCounter, MonadJSM m) => SystemT w m Entity
 spawnAsteroid = do
   shape <- genAsteroidShape
   rigid <- genAsteroidRigid shape
-  trans <- genAsteroidTransform
-  newEntity (shape, rigid, trans, mat)
+  newEntity (shape, rigid, mat)
   where
     mat = Material {
         materialFill = 0xc4c4c4
@@ -48,19 +49,10 @@ genAsteroidShape = do
     pure $ (d *) <$> va
   pure $ Shape . Polygon . V.fromList $ ps
 
-genAsteroidRigid :: HasGen w m => Shape -> SystemT w m Rigid
+genAsteroidRigid :: (HasGen w m, HasPhysicsEngine w m, MonadJSM m) => Shape -> SystemT w m Rigid
 genAsteroidRigid (Shape p) = do
-  let area = polygonArea p
-      dense = 10
-      mass = area * dense
-  v <- genRandom (-10) 10
-  pure Rigid {
-      rigidMass = mass
-    , rigidVelocity = v
-    }
-
-genAsteroidTransform :: HasGen w m => SystemT w m Trans
-genAsteroidTransform = do
+  let dense = 10
   t <- genRandom (V2 0 0) (V2 800 800)
   r <- genRandom 0 (2*pi)
-  pure $ Trans $ T2 t (Radian r) 1.0
+  v <- genRandom (-3) 3
+  newRigid t r v dense $ V.toList $ polygonPoints p

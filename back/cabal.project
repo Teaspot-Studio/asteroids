@@ -2,3 +2,4 @@ packages:
   ./
   ../game
   ../splaton
+  ../matter

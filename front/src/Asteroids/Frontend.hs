@@ -21,9 +21,9 @@ import Reflex.Dom
 frontend :: MonadFront t m => m ()
 frontend = do
   (elmnt, _) <- el' "div" $ pure ()
-  liftIO $ drawGame $ unElement . _element_raw $ elmnt
+  liftJSM $ drawGame $ unElement . _element_raw $ elmnt
 
-drawGame :: JSVal -> IO ()
+drawGame :: JSVal -> JSM ()
 drawGame e = do
   app <- pixiNewApp 800 800 0x000000
   pixiAppendTo app e
@@ -32,11 +32,11 @@ drawGame e = do
   w <- initRenderWorld
   runWith w $ fillRenderWorld app
 
-  t0 <- getCurrentTime
-  tickRef <- newIORef t0
+  t0 <- liftIO getCurrentTime
+  tickRef <- liftIO $ newIORef t0
   pixiAddTicker app $ do
-    t2 <- getCurrentTime
-    dt <- atomicModifyIORef' tickRef $ \t1 -> (t2, realToFrac $ t2 `diffUTCTime` t1)
+    t2 <- liftIO getCurrentTime
+    dt <- liftIO $ atomicModifyIORef' tickRef $ \t1 -> (t2, realToFrac $ t2 `diffUTCTime` t1)
     runWith w $ stepRenderWorld dt
 
 -- example :: JSVal -> IO ()

@@ -11,6 +11,10 @@ module Data.Physics.Matter.Body(
   , bodySetPosition
   , bodySetStatic
   , bodySetVelocity
+  , bodySetAirFriction
+  , bodyPosition
+  , bodyAngle
+  , bodyAirFriction
   ) where
 
 import Control.Monad.IO.Class
@@ -105,6 +109,34 @@ bodySetVelocity :: MonadJSM m
   -> m ()
 {-# INLINE bodySetVelocity #-}
 
+-- | A Number that defines the air friction of the body (air resistance).
+-- A value of 0 means the body will never slow as it moves through space.
+-- The higher the value, the faster a body slows when moving through space.
+-- The effects of the value are non-linear.
+bodySetAirFriction :: MonadJSM m
+  => Body
+  -> Double
+  -> m ()
+{-# INLINE bodySetAirFriction #-}
+
+-- | Get position in world of body
+bodyPosition :: MonadJSM m
+  => Body
+  -> m (V2 Double)
+{-# INLINE bodyPosition #-}
+
+-- | Get angle of body in radians
+bodyAngle :: MonadJSM m
+  => Body
+  -> m Double
+{-# INLINE bodyAngle #-}
+
+-- | A Number that defines the air friction of the body (air resistance).
+bodyAirFriction :: MonadJSM m
+  => Body
+  -> m Double
+{-# INLINE bodyAirFriction #-}
+
 #ifdef ghcjs_HOST_OS
 
 foreign import javascript safe "Matter.Body.applyForce($1, $2, $3)"
@@ -165,6 +197,26 @@ foreign import javascript safe "Matter.Body.setVelocity($1, $2)"
 
 bodySetVelocity b v = liftIO $ jsBodySetVelocity b =<< toVec v
 
+foreign import javascript safe "$1.frictionAir = $2"
+  jsBodySetAirFriction :: Body -> Double -> IO ()
+
+bodySetAirFriction b v = liftIO $ jsBodySetAirFriction b v
+
+foreign import javascript safe "$1.position"
+  jsBodyPosition :: Body -> IO Vec
+
+bodyPosition b = liftIO $ fromVec =<< jsBodyPosition b
+
+foreign import javascript safe "$1.angle"
+  jsBodyAngle :: Body -> IO Double
+
+bodyAngle b = liftIO $ jsBodyAngle b
+
+foreign import javascript safe "$1.frictionAir"
+  jsBodyAirFriction :: Body -> IO Double
+
+bodyAirFriction b = liftIO $ jsBodyAirFriction b
+
 #else
 
 bodyApplyForce = error "bodyApplyForce: unimplemented"
@@ -178,5 +230,9 @@ bodySetMass = error "bodySetMass: unimplemented"
 bodySetPosition = error "bodySetPosition: unimplemented"
 bodySetStatic = error "bodySetStatic: unimplemented"
 bodySetVelocity = error "bodySetVelocity: unimplemented"
+bodySetAirFriction = error "bodySetAirFriction: unimplemented"
+bodyPosition = error "bodyPosition: unimplemented"
+bodyAngle = error "bodyAngle: unimplemented"
+bodyAirFriction = error "bodyAirFriction: unimplemented"
 
 #endif

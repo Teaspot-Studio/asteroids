@@ -14,6 +14,7 @@ import Asteroids.Game.World
 import Control.Monad
 import Control.Monad.IO.Class
 import Data.Graphics.Pixi
+import Language.Javascript.JSaddle (JSM)
 import System.Random
 
 data RWorld = RWorld {
@@ -36,7 +37,7 @@ instance Monad m => Has RenderWorld m App where
   getStore = asks $ rworldApp . worldExtra
   {-# INLINE getStore #-}
 
-fillRenderWorld :: PixiApp -> SystemT RenderWorld IO ()
+fillRenderWorld :: PixiApp -> SystemT RenderWorld JSM ()
 fillRenderWorld app = do
   initPixiApp app
   seed <- liftIO randomIO
@@ -44,7 +45,7 @@ fillRenderWorld app = do
   fillWorld
   spawnDrawables
 
-stepRenderWorld :: Double -> SystemT RenderWorld IO ()
+stepRenderWorld :: Double -> SystemT RenderWorld JSM ()
 stepRenderWorld dt = do
   stepWorld dt
   drawDrawables
