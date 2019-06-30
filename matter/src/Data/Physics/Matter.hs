@@ -9,5 +9,6 @@ module Data.Physics.Matter(
 import Data.Physics.Matter.Bodies
 import Data.Physics.Matter.Body
 import Data.Physics.Matter.Engine
+import Data.Physics.Matter.Plugin
 import Data.Physics.Matter.Vector
 import Data.Physics.Matter.World

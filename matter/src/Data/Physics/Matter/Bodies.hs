@@ -17,6 +17,7 @@ bodiesCircle :: MonadJSM m
   => Double -- ^ X
   -> Double -- ^ Y
   -> Double -- ^ Radius
+  -> Maybe BodyOptions -- ^ Optional options
   -> m Body
 {-# INLINE bodiesCircle #-}
 
@@ -25,6 +26,7 @@ bodiesFromVertecies :: MonadJSM m
   => Double -- ^ X
   -> Double -- ^ Y
   -> [V2 Double] -- ^ Verts
+  -> Maybe BodyOptions -- ^ Optional options
   -> m Body
 {-# INLINE bodiesFromVertecies #-}
 
@@ -34,6 +36,7 @@ bodiesPolygon :: MonadJSM m
   -> Double -- ^ Y
   -> Int -- ^ Sides
   -> Double -- ^ Radius
+  -> Maybe BodyOptions -- ^ Optional options
   -> m Body
 {-# INLINE bodiesPolygon #-}
 
@@ -43,6 +46,7 @@ bodiesRectangle :: MonadJSM m
   -> Double -- ^ Y
   -> Double -- ^ Width
   -> Double -- ^ Height
+  -> Maybe BodyOptions -- ^ Optional options
   -> m Body
 {-# INLINE bodiesRectangle #-}
 
@@ -53,33 +57,34 @@ bodiesTrapezoid :: MonadJSM m
   -> Double -- ^ Width
   -> Double -- ^ Height
   -> Double -- ^ Slope
+  -> Maybe BodyOptions -- ^ Optional options
   -> m Body
 {-# INLINE bodiesTrapezoid #-}
 
 #ifdef ghcjs_HOST_OS
 
-foreign import javascript safe "Matter.Bodies.circle($1, $2, $3)"
-  jsBodiesCircle :: Double -> Double -> Double -> IO Body
+foreign import javascript safe "Matter.Bodies.circle($1, $2, $3, $4)"
+  jsBodiesCircle :: Double -> Double -> Double -> JSVal -> IO Body
 
-foreign import javascript safe "Matter.Bodies.fromVertices($1, $2, $3)"
-  jsBoidiesFromVertecies :: Double -> Double -> JSVal -> IO Body
+foreign import javascript safe "Matter.Bodies.fromVertices($1, $2, $3, $4)"
+  jsBoidiesFromVertecies :: Double -> Double -> JSVal -> JSVal -> IO Body
 
-foreign import javascript safe "Matter.Bodies.polygon($1, $2, $3, $4)"
-  jsBodiesPolygon :: Double -> Double -> Int -> Double -> IO Body
+foreign import javascript safe "Matter.Bodies.polygon($1, $2, $3, $4, $5)"
+  jsBodiesPolygon :: Double -> Double -> Int -> Double -> JSVal -> IO Body
 
-foreign import javascript safe "Matter.Bodies.rectangle($1, $2, $3, $4)"
-  jsBodiesRectangle :: Double -> Double -> Double -> Double -> IO Body
+foreign import javascript safe "Matter.Bodies.rectangle($1, $2, $3, $4, $5)"
+  jsBodiesRectangle :: Double -> Double -> Double -> Double -> JSVal -> IO Body
 
-foreign import javascript safe "Matter.Bodies.trapezoid($1, $2, $3, $4, $5)"
-  jsBodiesTrapezoid :: Double -> Double -> Double -> Double -> Double -> IO Body
+foreign import javascript safe "Matter.Bodies.trapezoid($1, $2, $3, $4, $5, $6)"
+  jsBodiesTrapezoid :: Double -> Double -> Double -> Double -> Double -> JSVal -> IO Body
 
-bodiesCircle x y r = liftIO $ jsBodiesCircle x y r
-bodiesFromVertecies x y vs = liftIO $ do
-  vs' <- traverse (fmap unVec . toVec) vs
-  jsBoidiesFromVertecies x y =<< toJSVal vs'
-bodiesPolygon x y i r = liftIO $ jsBodiesPolygon x y i r
-bodiesRectangle x y w h = liftIO $ jsBodiesRectangle x y w h
-bodiesTrapezoid x y w h s = liftIO $ jsBodiesTrapezoid x y w h s
+bodiesCircle x y r opts = liftIO $ jsBodiesCircle x y r =<< encodeBodyOptions opts
+bodiesFromVertecies x y vs opts = liftIO $ do
+  vs' <- toJSVal =<< traverse (fmap unVec . toVec) vs
+  jsBoidiesFromVertecies x y vs' =<< encodeBodyOptions opts
+bodiesPolygon x y i r opts = liftIO $ jsBodiesPolygon x y i r =<< encodeBodyOptions opts
+bodiesRectangle x y w h opts = liftIO $ jsBodiesRectangle x y w h =<< encodeBodyOptions opts
+bodiesTrapezoid x y w h s opts = liftIO $ jsBodiesTrapezoid x y w h s =<< encodeBodyOptions opts
 
 #else
 

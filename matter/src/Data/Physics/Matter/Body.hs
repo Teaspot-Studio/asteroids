@@ -1,5 +1,7 @@
 module Data.Physics.Matter.Body(
     Body(..)
+  , BodyOptions(..)
+  , encodeBodyOptions
   , bodyApplyForce
   , bodyRotate
   , bodyScale
@@ -15,12 +17,16 @@ module Data.Physics.Matter.Body(
   , bodyPosition
   , bodyAngle
   , bodyAirFriction
+  , module Data.Physics.Matter.Plugin
   ) where
 
 import Control.Monad.IO.Class
+import Data.Aeson
+import Data.Foldable (foldl')
+import Data.Physics.Matter.Plugin
 import Data.Physics.Matter.Vector
 import Data.Physics.Matter.World
-import Language.Javascript.JSaddle
+import Language.Javascript.JSaddle hiding (Object)
 import Linear
 
 -- | A Matter.Body is a rigid body that can be simulated by a Matter.Engine
@@ -29,6 +35,30 @@ newtype Body = Body { unBody :: JSVal }
 instance WorldAddable Body where
   worldAdd w = worldAddRaw w . unBody
   {-# INLINE worldAdd #-}
+
+-- | Additional options for creation of body
+data BodyOptions = BodyOptions {
+  boptsPlugin :: [PluginOptions]
+}
+
+instance ToJSON BodyOptions where
+  toJSON BodyOptions{..} = object [
+      "plugin" .= Object (foldl' merge mempty $ fmap toJSON boptsPlugin)
+    ]
+    where
+      merge !acc (Object kv) = acc <> kv
+      merge !acc _ = acc
+  {-# INLINE toJSON #-}
+
+instance ToJSVal BodyOptions where
+  toJSVal = toJSVal . toJSON
+  {-# INLINE toJSVal #-}
+
+-- | Encode body options in format that matter.js understands it
+encodeBodyOptions :: MonadJSM m => Maybe BodyOptions -> m JSVal
+encodeBodyOptions mopts = liftJSM $ case mopts of
+  Nothing -> toJSVal () -- undefined
+  Just opts -> toJSVal opts
 
 -- | Applies a force to a body from a given world-space position, including resulting torque.
 bodyApplyForce :: MonadJSM m

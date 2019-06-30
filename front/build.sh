@@ -6,6 +6,7 @@ closure-compiler $build_path/all.js --compilation_level=ADVANCED_OPTIMIZATIONS \
   --externs=$build_path/all.js.externs \
   --externs=./statics/js/pixi.min.js \
   --externs=./statics/js/matter.min.js \
+  --externs=./statics/js/matter-wrap.min.js \
   --jscomp_off=duplicate \
   --jscomp_off=undefinedVars \
   --jscomp_off=externsValidation \

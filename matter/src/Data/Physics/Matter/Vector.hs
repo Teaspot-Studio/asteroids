@@ -2,9 +2,11 @@ module Data.Physics.Matter.Vector(
     Vec(..)
   , toVec
   , fromVec
+  , toVecJSON
   ) where
 
 import Control.Monad.IO.Class
+import Data.Aeson
 import Language.Javascript.JSaddle
 import Linear
 
@@ -38,3 +40,8 @@ fromVec v = liftIO $ V2 <$> jsVecX v <*> jsVecY v
 toVec = error "toVec: unimplemented"
 fromVec = error "fromVec: unimplemented"
 #endif
+
+-- | Encode vector as { x: 0, y: 0 }
+toVecJSON :: V2 Double -> Value
+toVecJSON (V2 x y) = object [ "x" .= x, "y" .= y ]
+{-# INLINE toVecJSON #-}

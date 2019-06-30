@@ -48,7 +48,11 @@ newRigid ::(Has w m PhysicsEngine, MonadJSM m)
 newRigid (V2 x y) a v d vs = do
   w <- getPhysicsWorld
   b <- lift $ do
-    b <- MT.bodiesFromVertecies x y vs
+    b <- MT.bodiesFromVertecies x y vs $ Just MT.BodyOptions {
+        boptsPlugin = [
+          MT.WrapPlugin 0 800
+        ]
+      }
     MT.bodySetAngle b a
     MT.bodySetDensity b d
     MT.bodySetVelocity b v
@@ -62,7 +66,6 @@ stepRigids :: (HasRigid w m, Has w m Shape, Has w m PhysicsEngine, HasTrans w m,
 stepRigids dt = do
   e <- getPhysicsEngine
   lift $ MT.engineUpdate e dt 1.0
-  wrapSpace
 
 -- | Extract position/rotation/scale from the physics body
 rigidTransform :: MonadJSM m => Rigid -> m (T2 Double)
@@ -70,21 +73,3 @@ rigidTransform (Rigid b) = do
   p <- MT.bodyPosition b
   a <- MT.bodyAngle b
   pure $ T2 p (Radian a) 1.0
-
--- | If body leaves playable area, move it back from other side
-wrapSpace :: (HasRigid w m, MonadJSM m) => SystemT w m ()
-wrapSpace = cmapM_ $ \(Rigid b) -> do
-  V2 x y <- lift $ MT.bodyPosition b
-  let maxx = 800
-      maxy = 800
-  when (x < 0 || x > maxx || y < 0 || y < maxy) $ do
-    let
-      x' = if
-        | x < 0 -> maxx
-        | x > maxx -> 0
-        | otherwise -> x
-      y' = if
-        | y < 0 -> maxy
-        | y > maxy -> 0
-        | otherwise -> y
-    lift $ MT.bodySetPosition b $ V2 x' y'

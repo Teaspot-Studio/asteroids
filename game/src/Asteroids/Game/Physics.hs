@@ -34,6 +34,7 @@ instance Component PhysicsEngine where
 -- | Setup phyicis engine
 initPhysicsEngine :: (Set w m PhysicsEngine, MonadJSM m) => SystemT w m ()
 initPhysicsEngine = do
+  lift $ MT.usePlugin MT.PluginWrap
   e <- lift MT.engineCreate
   set global . PhysicsEngine . Just $ e
 
