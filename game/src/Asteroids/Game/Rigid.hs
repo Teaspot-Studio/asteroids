@@ -53,7 +53,6 @@ newRigid (V2 x y) a v d vs = do
           MT.WrapPlugin 0 800
         ]
       }
-    traceM "?"
     MT.bodySetAngle b a
     MT.bodySetDensity b d
     MT.bodySetVelocity b v

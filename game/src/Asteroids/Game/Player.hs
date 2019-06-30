@@ -3,6 +3,8 @@ module Asteroids.Game.Player(
   , Player(..)
   , Players
   , addPlayer
+  , getPlayer
+  , forAllPlayers_
   , OwnedBy(..)
   , HasOwnedBy
   , playerFillColor
@@ -13,6 +15,7 @@ import Apecs
 import Asteroids.Game.Material
 import Asteroids.Game.Store.Cache
 import Control.Monad.IO.Class
+import Data.Foldable (traverse_)
 import Data.IntMap (IntMap)
 
 import qualified Data.IntMap as M
@@ -41,6 +44,12 @@ addPlayer p = modify global $ M.insert (playerNum p) p
 -- | Get player by it number
 getPlayer :: Get w m Players => PlayerNum -> SystemT w m (Maybe Player)
 getPlayer i = fmap (M.lookup i) $ get global
+
+-- | Perform action for all players
+forAllPlayers_ :: Get w m Players => (Player -> SystemT w m ()) -> SystemT w m ()
+forAllPlayers_ f = do
+  ps :: Players <- get global
+  traverse_ f ps
 
 -- | Component that indicates that given entity is belongs to given player
 newtype OwnedBy = OwnedBy { ownedBy :: PlayerNum }

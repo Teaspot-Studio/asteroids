@@ -14,5 +14,8 @@ type MonadFront t m = (
   , MonadFix m
   , MonadIO m
   , MonadJSM m
+  , PerformEvent t m
+  , MonadIO (Performable m)
+  , TriggerEvent t m
   , DomBuilderSpace m ~ GhcjsDomSpace
   )

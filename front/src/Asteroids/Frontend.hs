@@ -3,9 +3,11 @@ module Asteroids.Frontend(
   ) where
 
 import Apecs
+import Asteroids.Frontend.Input
 import Asteroids.Frontend.Monad
 import Asteroids.Frontend.Render
 import Asteroids.Frontend.World
+import Asteroids.Game
 import Asteroids.Util
 import Control.Monad
 import Control.Monad.IO.Class
@@ -21,10 +23,51 @@ import Reflex.Dom
 frontend :: MonadFront t m => m ()
 frontend = do
   (elmnt, _) <- el' "div" $ pure ()
-  liftJSM $ drawGame $ unElement . _element_raw $ elmnt
+  cntrs <- newGameControls
+  liftJSM $ drawGame cntrs $ unElement . _element_raw $ elmnt
 
-drawGame :: JSVal -> JSM ()
-drawGame e = do
+data GameControls = GameControls {
+  shipUpRef     :: !(IORef Bool)
+, shipDownRef   :: !(IORef Bool)
+, shipLeftRef   :: !(IORef Bool)
+, shipRightRef  :: !(IORef Bool)
+}
+
+makeDynamicRef :: MonadFront t m => Dynamic t a -> m (IORef a)
+makeDynamicRef d = do
+  a0 <- sample . current $ d
+  ref <- liftIO $ newIORef a0
+  performEvent_ $ ffor (updated d) $ liftIO . writeIORef ref
+  pure ref
+
+newGameControls :: MonadFront t m => m GameControls
+newGameControls = do
+  upD <- windowKeyPress ArrowUp
+  downD <- windowKeyPress ArrowDown
+  leftD <- windowKeyPress ArrowLeft
+  rightD <- windowKeyPress ArrowRight
+  GameControls
+    <$> makeDynamicRef upD
+    <*> makeDynamicRef downD
+    <*> makeDynamicRef leftD
+    <*> makeDynamicRef rightD
+
+reactInput :: GameControls -> SystemT RenderWorld IO ()
+reactInput GameControls{..} = do
+  fforInput shipUpRef $ processPlayerInput 0 ShipTrust
+  fforInput shipLeftRef $ processPlayerInput 0 ShipLeft
+  fforInput shipRightRef $ processPlayerInput 0 ShipRight
+  fforNone [shipLeftRef, shipRightRef] $ processPlayerInput 0 ShipTurnStop
+  where
+    fforInput r ma = do
+      v <- liftIO $ readIORef r
+      when v ma
+    fforNone rs ma = do
+      vs <- liftIO $ traverse readIORef rs
+      unless (or vs) ma  
+
+drawGame :: GameControls -> JSVal -> JSM ()
+drawGame cntrls e = do
   app <- pixiNewApp 800 800 0x000000
   pixiAppendTo app e
   pixiStageInteractive app True
@@ -37,7 +80,9 @@ drawGame e = do
   pixiAddTicker app $ do
     t2 <- liftIO getCurrentTime
     dt <- liftIO $ atomicModifyIORef' tickRef $ \t1 -> (t2, realToFrac $ t2 `diffUTCTime` t1)
-    runWith w $ stepRenderWorld dt
+    runWith w $ do
+      reactInput cntrls
+      stepRenderWorld dt
 
 -- example :: JSVal -> IO ()
 -- example e = do
