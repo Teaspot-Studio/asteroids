@@ -1,6 +1,7 @@
 module Asteroids.Game.Material(
     Material(..)
   , HasMaterial
+  , Color
   ) where
 
 import Apecs

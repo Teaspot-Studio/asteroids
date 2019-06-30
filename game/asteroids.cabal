@@ -17,9 +17,11 @@ library
     Asteroids.Game.Asteroid
     Asteroids.Game.Material
     Asteroids.Game.Physics
+    Asteroids.Game.Player
     Asteroids.Game.Random
     Asteroids.Game.Rigid
     Asteroids.Game.Shape
+    Asteroids.Game.Ship
     Asteroids.Game.Store.Cache
     Asteroids.Game.Transform
     Asteroids.Game.World

@@ -6,6 +6,7 @@ module Data.Physics.Matter.Bodies(
   , bodiesTrapezoid
   ) where
 
+import Control.Monad
 import Control.Monad.IO.Class
 import Data.Physics.Matter.Body
 import Data.Physics.Matter.Vector
@@ -81,7 +82,9 @@ foreign import javascript safe "Matter.Bodies.trapezoid($1, $2, $3, $4, $5, $6)"
 bodiesCircle x y r opts = liftIO $ jsBodiesCircle x y r =<< encodeBodyOptions opts
 bodiesFromVertecies x y vs opts = liftIO $ do
   vs' <- toJSVal =<< traverse (fmap unVec . toVec) vs
-  jsBoidiesFromVertecies x y vs' =<< encodeBodyOptions opts
+  b <- jsBoidiesFromVertecies x y vs' =<< encodeBodyOptions opts
+  when (isUndefined . unBody $ b) $ fail $ "Failed to create body " <> show (x, y, vs, opts)
+  pure b
 bodiesPolygon x y i r opts = liftIO $ jsBodiesPolygon x y i r =<< encodeBodyOptions opts
 bodiesRectangle x y w h opts = liftIO $ jsBodiesRectangle x y w h =<< encodeBodyOptions opts
 bodiesTrapezoid x y w h s opts = liftIO $ jsBodiesTrapezoid x y w h s =<< encodeBodyOptions opts

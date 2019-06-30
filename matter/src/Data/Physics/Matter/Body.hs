@@ -39,7 +39,7 @@ instance WorldAddable Body where
 -- | Additional options for creation of body
 data BodyOptions = BodyOptions {
   boptsPlugin :: [PluginOptions]
-}
+} deriving (Show)
 
 instance ToJSON BodyOptions where
   toJSON BodyOptions{..} = object [

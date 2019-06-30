@@ -19,6 +19,7 @@ data PluginOptions =
       wrapPluginMin :: !(V2 Double)
     , wrapPluginMax :: !(V2 Double)
     }
+  deriving (Show)
 
 instance ToJSON PluginOptions where
   toJSON WrapPlugin{..} = object [

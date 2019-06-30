@@ -9,9 +9,11 @@ import Apecs
 import Asteroids.Game.Asteroid
 import Asteroids.Game.Material
 import Asteroids.Game.Physics
+import Asteroids.Game.Player
 import Asteroids.Game.Random
 import Asteroids.Game.Rigid
 import Asteroids.Game.Shape
+import Asteroids.Game.Ship
 import Asteroids.Game.Transform
 import Control.Monad
 import Control.Monad.IO.Class
@@ -27,6 +29,9 @@ data World r = World {
 , worldGen           :: !(Storage Gen)
 , worldTrans         :: !(Storage Trans)
 , worldPhysicsEngine :: !(Storage PhysicsEngine)
+, worldPlayers       :: !(Storage Players)
+, worldOwnedBy       :: !(Storage OwnedBy)
+, worldShip          :: !(Storage Ship)
 , worldExtra         :: !r
 }
 
@@ -34,6 +39,9 @@ data World r = World {
 initWorld :: MonadIO m => r -> m (World r)
 initWorld r = World
   <$> explInit
+  <*> explInit
+  <*> explInit
+  <*> explInit
   <*> explInit
   <*> explInit
   <*> explInit
@@ -70,10 +78,23 @@ instance Monad m => Has (World r) m PhysicsEngine where
   getStore = asks worldPhysicsEngine
   {-# INLINE getStore #-}
 
+instance Monad m => Has (World r) m Players where
+  getStore = asks worldPlayers
+  {-# INLINE getStore #-}
+
+instance Monad m => Has (World r) m OwnedBy where
+  getStore = asks worldOwnedBy
+  {-# INLINE getStore #-}
+
+instance Monad m => Has (World r) m Ship where
+  getStore = asks worldShip
+  {-# INLINE getStore #-}
+
 -- | Generate initial objects in world
 fillWorld :: SystemT (World r) JSM ()
 fillWorld = do
   initPhysicsEngine
+  spawnPlayer 0
   _ <- replicateM 10 spawnAsteroid
   pure ()
 
