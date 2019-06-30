@@ -1,7 +1,0 @@
-compiler: ghcjs
-packages:
-  ./.
-  ../game
-  ../pixi
-  ../splaton
-  ../matter
