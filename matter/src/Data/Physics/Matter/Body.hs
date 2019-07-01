@@ -18,17 +18,26 @@ module Data.Physics.Matter.Body(
   , bodyAngle
   , bodyAirFriction
   , bodyVertecies
+  , bodyGetData
+  , bodySetData
+  , bodyParent
+  , bodyRootParent
+  , bodyId
   , module Data.Physics.Matter.Plugin
   ) where
 
 import Control.Monad.IO.Class
 import Data.Aeson
 import Data.Foldable (foldl')
+import Data.Function
 import Data.Physics.Matter.Plugin
 import Data.Physics.Matter.Vector
 import Data.Physics.Matter.World
+import Data.Text (Text)
 import Language.Javascript.JSaddle hiding (Object)
 import Linear
+
+import qualified Data.HashMap.Strict as HM
 
 -- | A Matter.Body is a rigid body that can be simulated by a Matter.Engine
 newtype Body = Body { unBody :: JSVal }
@@ -37,6 +46,10 @@ instance WorldAddable Body where
   worldAdd w = worldAddRaw w . unBody
   {-# INLINE worldAdd #-}
 
+instance WorldRemovable Body where
+  worldRemove w = worldRemoveRaw w . unBody
+  {-# INLINE worldRemove #-}
+
 -- | Additional options for creation of body
 data BodyOptions = BodyOptions {
   boptsPlugin :: [PluginOptions]
@@ -44,9 +57,10 @@ data BodyOptions = BodyOptions {
 
 instance ToJSON BodyOptions where
   toJSON BodyOptions{..} = object [
-      "plugin" .= Object (foldl' merge mempty $ fmap toJSON boptsPlugin)
+      "plugin" .= Object (foldl' merge defv $ fmap toJSON boptsPlugin)
     ]
     where
+      defv = HM.singleton "haskell" (Object mempty)
       merge !acc (Object kv) = acc <> kv
       merge !acc _ = acc
   {-# INLINE toJSON #-}
@@ -174,6 +188,36 @@ bodyVertecies :: MonadJSM m
   -> m [V2 Double]
 {-# INLINE bodyVertecies #-}
 
+-- | Access custom data of body that is stored with `bodySetData`
+bodyGetData :: (MonadJSM m, FromJSVal a) => Body -> Text -> m (Maybe a)
+{-# INLINE bodyGetData #-}
+
+-- | Set custom data of body
+bodySetData :: (MonadJSM m, ToJSVal a) => Body -> Text -> a -> m ()
+{-# INLINE bodySetData #-}
+
+-- | Get parent of body if exists
+bodyParent :: MonadJSM m => Body -> m (Maybe Body)
+{-# INLINE bodyParent #-}
+
+-- | Get the most parent of the body or itself
+bodyRootParent :: MonadJSM m => Body -> m Body
+bodyRootParent b = do
+  bid <- bodyId b
+  mparent <- bodyParent b
+  case mparent of
+    Nothing -> pure b
+    Just parent -> do
+      pid <- bodyId parent
+      if pid == bid then pure b else bodyRootParent parent
+{-# INLINEABLE bodyRootParent #-}
+
+-- | A Number that identifies the body
+bodyId :: MonadJSM m
+  => Body
+  -> m Int
+{-# INLINE bodyId #-}
+
 #ifdef ghcjs_HOST_OS
 
 foreign import javascript safe "Matter.Body.applyForce($1, $2, $3)"
@@ -262,6 +306,30 @@ bodyVertecies b = liftIO $ do
   arr <- maybe (fail "bodyVertecies failed to decode array!") pure marr
   traverse (fromVec . Vec) arr
 
+foreign import javascript safe "$1.plugin.haskell[$2]"
+  jsBodyGetData :: Body -> Text -> IO JSVal
+
+bodyGetData b k = liftIO $ do
+  v <- jsBodyGetData b k
+  if isUndefined v then pure Nothing else fromJSVal v
+
+foreign import javascript safe "$1.plugin.haskell[$2] = $3"
+  jsBodySetData :: Body -> Text -> JSVal -> IO ()
+
+bodySetData b k a = liftIO $ jsBodySetData b k =<< toJSVal a
+
+foreign import javascript unsafe "$1.parent"
+  jsBodyParent :: Body -> IO JSVal
+
+bodyParent b = liftIO $ do
+  v <- jsBodyParent b
+  pure $ if isNull v then Nothing else Just (Body v)
+
+foreign import javascript unsafe "$1.id"
+  jsBodyId :: Body -> IO Int
+
+bodyId b = liftIO $ jsBodyId b
+
 #else
 
 bodyApplyForce = error "bodyApplyForce: unimplemented"
@@ -280,5 +348,9 @@ bodyPosition = error "bodyPosition: unimplemented"
 bodyAngle = error "bodyAngle: unimplemented"
 bodyAirFriction = error "bodyAirFriction: unimplemented"
 bodyVertecies = error "bodyVertecies: unimplemented"
+bodyGetData = error "bodyGetData: unimplemented"
+bodySetData = error "bodySetData: unimplemented"
+bodyParent = error "bodyParent: unimplemented"
+bodyId = error "bodyId: unimplemented"
 
 #endif

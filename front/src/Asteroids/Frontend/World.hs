@@ -9,6 +9,7 @@ module Asteroids.Frontend.World(
 import Apecs
 import Asteroids.Frontend.App
 import Asteroids.Frontend.Drawable
+import Asteroids.Game.Entity
 import Asteroids.Game.Random
 import Asteroids.Game.World
 import Control.Monad
@@ -49,3 +50,4 @@ stepRenderWorld :: Double -> SystemT RenderWorld JSM ()
 stepRenderWorld dt = do
   stepWorld dt
   drawDrawables
+  processRemoved destroyDrawable

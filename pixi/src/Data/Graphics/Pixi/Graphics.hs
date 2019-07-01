@@ -24,6 +24,7 @@ module Data.Graphics.Pixi.Graphics(
   , quadraticCurveTo
   , graphicsSetOnClick
   , graphicsSetInteractive
+  , graphicsDestroy
   ) where
 
 import Control.Monad.IO.Class
@@ -211,6 +212,16 @@ graphicsSetInteractive  (PixiGraphics g) v = liftIO $ do
   js_pixi_graphics_interactive g v
 {-# INLINABLE graphicsSetInteractive #-}
 
+foreign import javascript safe "$1.destroy();"
+  js_pixi_graphics_destroy :: JSVal -> IO ()
+
+-- | Destroys the Graphics object.
+graphicsDestroy :: MonadIO m
+  => PixiGraphics
+  -> m ()
+graphicsDestroy (PixiGraphics g) = liftIO $ js_pixi_graphics_destroy g
+{-# INLINEABLE graphicsDestroy #-}
+
 #else
 
 -- | Create new PIXI element with drawing context
@@ -294,5 +305,11 @@ graphicsSetInteractive :: MonadIO m
   -> Bool
   -> m ()
 graphicsSetInteractive = error "graphicsSetInteractive: unimplemented"
+
+-- | Destroys the Graphics object.
+graphicsDestroy :: MonadIO m
+  => PixiGraphics
+  -> m ()
+graphicsDestroy = error "graphicsDestroy: unimplemented"
 
 #endif

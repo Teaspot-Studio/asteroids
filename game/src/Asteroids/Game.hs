@@ -1,5 +1,7 @@
 module Asteroids.Game(
     module Asteroids.Game.Asteroid
+  , module Asteroids.Game.Collision
+  , module Asteroids.Game.Entity
   , module Asteroids.Game.Material
   , module Asteroids.Game.Physics
   , module Asteroids.Game.Player
@@ -11,6 +13,8 @@ module Asteroids.Game(
   ) where
 
 import Asteroids.Game.Asteroid
+import Asteroids.Game.Collision
+import Asteroids.Game.Entity
 import Asteroids.Game.Material
 import Asteroids.Game.Physics
 import Asteroids.Game.Player

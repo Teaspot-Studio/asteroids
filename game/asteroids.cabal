@@ -15,6 +15,8 @@ library
     Asteroids.Util
     Asteroids.Game
     Asteroids.Game.Asteroid
+    Asteroids.Game.Collision
+    Asteroids.Game.Entity
     Asteroids.Game.Material
     Asteroids.Game.Physics
     Asteroids.Game.Player
@@ -27,17 +29,18 @@ library
     Asteroids.Game.World
   build-depends:
       base
-    , apecs             >= 0.7          && < 0.8
-    , containers        >= 0.4          && < 0.7
-    , jsaddle           >= 0.9          && < 0.10
-    , linear            >= 1.20         && < 1.21
-    , matter            >= 0.1          && < 0.2
-    , mtl               >= 2.0          && < 2.3
-    , random            >= 1.1          && < 1.2
-    , safe              >= 0.3          && < 0.4
-    , splaton           >= 0.1          && < 0.2
-    , text              >= 1.2          && < 1.3
-    , vector            >= 0.12         && < 0.13
+    , apecs                 >= 0.7          && < 0.8
+    , containers            >= 0.4          && < 0.7
+    , jsaddle               >= 0.9          && < 0.10
+    , linear                >= 1.20         && < 1.21
+    , matter                >= 0.1          && < 0.2
+    , mtl                   >= 2.0          && < 2.3
+    , random                >= 1.1          && < 1.2
+    , safe                  >= 0.3          && < 0.4
+    , splaton               >= 0.1          && < 0.2
+    , text                  >= 1.2          && < 1.3
+    , unordered-containers  >= 0.2          && < 0.3
+    , vector                >= 0.12         && < 0.13
   default-language:    Haskell2010
   default-extensions:
     BangPatterns

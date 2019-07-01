@@ -6,6 +6,8 @@ module Asteroids.Game.Rigid(
   , newRigid
   , rigidTransform
   , rigidShape
+  , bindRigid
+  , rigidEntity
   ) where
 
 import Apecs
@@ -62,6 +64,14 @@ newRigid (V2 x y) a v d vs = do
     MT.worldAdd w b
     pure b
   pure $ Rigid b
+
+-- | Attach entity id to the rigid body
+bindRigid :: MonadJSM m => Rigid -> Entity -> m ()
+bindRigid (Rigid r) = MT.bodySetData r "entity" . unEntity
+
+-- | Get entity id attached to body
+rigidEntity :: MonadJSM m => Rigid -> m (Maybe Entity)
+rigidEntity (Rigid r) = fmap Entity <$> MT.bodyGetData r "entity"
 
 -- | Evolve positions and physics of rigid bodies
 stepRigids :: (HasRigid w m, Has w m Shape, Has w m PhysicsEngine, HasTrans w m, MonadJSM m) => Double -> SystemT w m ()

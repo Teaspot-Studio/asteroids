@@ -5,10 +5,12 @@ module Asteroids.Game.Ship(
   , ShipControl(..)
   , shipControl
   , processPlayerInput
+  , destroyShip
   ) where
 
 import Apecs
 import Asteroids.Game.Material
+import Asteroids.Game.Entity
 import Asteroids.Game.Physics
 import Asteroids.Game.Player
 import Asteroids.Game.Rigid
@@ -56,7 +58,9 @@ spawnPlayer pnum = do
           shipMaxTrust = 100000
         , shipTurnSpeed = 0.05
         }
-  newEntity (ship, OwnedBy pnum, r, shipShape, shipMaterial pnum)
+  eid <- newEntity (ship, OwnedBy pnum, r, shipShape, shipMaterial pnum)
+  bindRigid r eid
+  pure eid
 
 shipShape :: Shape
 shipShape = Shape $ Polygon $ V.fromList [
@@ -98,3 +102,14 @@ shipControl e c = do
 -- | Process commands from given player
 processPlayerInput :: (HasShip w m, MonadJSM m) => PlayerNum -> ShipControl -> SystemT w m ()
 processPlayerInput p c = cmapM_ $ \(OwnedBy p', _ :: Ship, eid) -> when (p' == p) $ shipControl eid c
+
+-- | If given entity is ship, destroy it
+destroyShip :: (HasShip w m, Has w m PhysicsEngine, HasRemoved w m, MonadJSM m) => Entity -> SystemT w m ()
+destroyShip eid = do
+  isShip <- exists eid (Proxy :: Proxy Ship)
+  when isShip $ do
+    Rigid r <- get eid
+    w <- getPhysicsWorld
+    lift $ MT.worldRemove w r
+    destroy eid (Proxy :: Proxy (Ship, OwnedBy, Shape, Material))
+    fireRemoved eid

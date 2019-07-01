@@ -3,6 +3,7 @@ module Asteroids.Frontend.Drawable(
   , HasDrawable
   , spawnDrawables
   , drawDrawables
+  , destroyDrawable
   ) where
 
 import Apecs
@@ -14,10 +15,13 @@ import Asteroids.Game.Rigid
 import Asteroids.Game.Shape
 import Asteroids.Game.Store.Cache
 import Asteroids.Game.Transform
+import Control.Monad
 import Control.Monad.IO.Class
 import Data.Graphics.Pixi
 import Data.Splaton
 import Language.Javascript.JSaddle (MonadJSM)
+
+import Debug.Trace
 
 newtype Drawable = Drawable {
   drawableGraphics :: PixiGraphics
@@ -50,3 +54,11 @@ drawDrawables = do
     graphicsClear g
     t <- lift $ rigidTransform r
     withMaterial g mat $ drawPolygon g $ mapPolygon realToFrac $ applyTransform t ps
+
+-- | Stop drawing component
+destroyDrawable :: (HasDrawable w m, MonadJSM m) => Entity -> SystemT w m ()
+destroyDrawable e = do
+  hasDrawable <- exists e (Proxy :: Proxy Drawable)
+  when hasDrawable $ do
+    Drawable gr <- get e
+    graphicsDestroy gr

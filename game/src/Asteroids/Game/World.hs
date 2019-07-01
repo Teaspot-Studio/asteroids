@@ -7,6 +7,8 @@ module Asteroids.Game.World(
 
 import Apecs
 import Asteroids.Game.Asteroid
+import Asteroids.Game.Collision
+import Asteroids.Game.Entity
 import Asteroids.Game.Material
 import Asteroids.Game.Physics
 import Asteroids.Game.Player
@@ -32,6 +34,7 @@ data World r = World {
 , worldPlayers       :: !(Storage Players)
 , worldOwnedBy       :: !(Storage OwnedBy)
 , worldShip          :: !(Storage Ship)
+, worldRemoved       :: !(Storage Removed)
 , worldExtra         :: !r
 }
 
@@ -39,6 +42,7 @@ data World r = World {
 initWorld :: MonadIO m => r -> m (World r)
 initWorld r = World
   <$> explInit
+  <*> explInit
   <*> explInit
   <*> explInit
   <*> explInit
@@ -90,12 +94,17 @@ instance Monad m => Has (World r) m Ship where
   getStore = asks worldShip
   {-# INLINE getStore #-}
 
+instance Monad m => Has (World r) m Removed where
+  getStore = asks worldRemoved
+  {-# INLINE getStore #-}
+
 -- | Generate initial objects in world
 fillWorld :: SystemT (World r) JSM ()
 fillWorld = do
   initPhysicsEngine
   spawnPlayer 0
   _ <- replicateM 10 spawnAsteroid
+  processCollisions
   pure ()
 
 -- | Calculate one simulation step

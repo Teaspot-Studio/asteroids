@@ -31,6 +31,7 @@ instance Monoid PhysicsEngine where
 instance Component PhysicsEngine where
   type Storage PhysicsEngine = Global PhysicsEngine
 
+
 -- | Setup phyicis engine
 initPhysicsEngine :: (Set w m PhysicsEngine, MonadJSM m) => SystemT w m ()
 initPhysicsEngine = do
