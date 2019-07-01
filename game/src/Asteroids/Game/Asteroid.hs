@@ -28,7 +28,8 @@ spawnAsteroid :: (HasGen w m, HasAsteroid w m, Has w m EntityCounter, MonadJSM m
 spawnAsteroid = do
   shape <- genAsteroidShape
   rigid <- genAsteroidRigid shape
-  newEntity (shape, rigid, mat)
+  shape' <- rigidShape rigid
+  newEntity (shape', rigid, mat)
   where
     mat = Material {
         materialFill = 0xc4c4c4

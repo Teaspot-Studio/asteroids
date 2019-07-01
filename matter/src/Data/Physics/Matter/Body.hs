@@ -17,6 +17,7 @@ module Data.Physics.Matter.Body(
   , bodyPosition
   , bodyAngle
   , bodyAirFriction
+  , bodyVertecies
   , module Data.Physics.Matter.Plugin
   ) where
 
@@ -167,6 +168,12 @@ bodyAirFriction :: MonadJSM m
   -> m Double
 {-# INLINE bodyAirFriction #-}
 
+-- | A Number that defines the air friction of the body (air resistance).
+bodyVertecies :: MonadJSM m
+  => Body
+  -> m [V2 Double]
+{-# INLINE bodyVertecies #-}
+
 #ifdef ghcjs_HOST_OS
 
 foreign import javascript safe "Matter.Body.applyForce($1, $2, $3)"
@@ -247,6 +254,14 @@ foreign import javascript safe "$1.frictionAir"
 
 bodyAirFriction b = liftIO $ jsBodyAirFriction b
 
+foreign import javascript safe "$1.vertices"
+  jsBodyVertecies :: Body -> IO JSVal
+
+bodyVertecies b = liftIO $ do
+  marr :: Maybe [JSVal] <- fromJSVal =<< jsBodyVertecies b
+  arr <- maybe (fail "bodyVertecies failed to decode array!") pure marr
+  traverse (fromVec . Vec) arr
+
 #else
 
 bodyApplyForce = error "bodyApplyForce: unimplemented"
@@ -264,5 +279,6 @@ bodySetAirFriction = error "bodySetAirFriction: unimplemented"
 bodyPosition = error "bodyPosition: unimplemented"
 bodyAngle = error "bodyAngle: unimplemented"
 bodyAirFriction = error "bodyAirFriction: unimplemented"
+bodyVertecies = error "bodyVertecies: unimplemented"
 
 #endif

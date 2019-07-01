@@ -3,6 +3,7 @@ module Data.Splaton.Transform(
   , ApplyTransform(..)
   , T3(..)
   , T2(..)
+  , RevTrans(..)
   ) where
 
 import Data.Splaton.Angle
@@ -222,4 +223,21 @@ instance (RealFloat a) => ApplyTransform (T2 a) (V2 a) where
   {-# INLINE applyRotation #-}
 
   applyTranslation (T2 t _ _) a = t + a
+  {-# INLINE applyTranslation #-}
+
+-- | Wrapper that correctly applies transformation in reverse order
+newtype RevTrans t = RevTrans { unRevTrans :: t }
+  deriving (Semigroup, Monoid, Transform)
+
+instance (Transform t, ApplyTransform t a) => ApplyTransform (RevTrans t) a where
+  applyTransform t = applyScale t . applyRotation t . applyTranslation t 
+  {-# INLINE applyTransform #-}
+
+  applyScale (RevTrans t) a = applyScale (reverseTransform t) a
+  {-# INLINE applyScale #-}
+
+  applyRotation (RevTrans t) a = applyRotation (reverseTransform t) a
+  {-# INLINE applyRotation #-}
+
+  applyTranslation (RevTrans t) a = applyTranslation (reverseTransform t) a
   {-# INLINE applyTranslation #-}

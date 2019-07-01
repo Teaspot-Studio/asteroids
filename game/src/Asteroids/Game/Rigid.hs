@@ -5,6 +5,7 @@ module Asteroids.Game.Rigid(
   , stepRigids
   , newRigid
   , rigidTransform
+  , rigidShape
   ) where
 
 import Apecs
@@ -22,6 +23,7 @@ import Linear
 import Debug.Trace
 
 import qualified Data.Physics.Matter as MT
+import qualified Data.Vector.Unboxed as V
 
 newtype Rigid = Rigid {
   rigidBody :: MT.Body
@@ -73,3 +75,10 @@ rigidTransform (Rigid b) = do
   p <- MT.bodyPosition b
   a <- MT.bodyAngle b
   pure $ T2 p (Radian a) 1.0
+
+-- | Get shape of rigid from physics engine
+rigidShape :: MonadJSM m => Rigid -> m Shape
+rigidShape r@(Rigid b) = do
+  t <- rigidTransform r
+  ps <- MT.bodyVertecies b
+  pure $ Shape $ Polygon . V.fromList $ fmap (applyTransform . RevTrans $ t) ps
